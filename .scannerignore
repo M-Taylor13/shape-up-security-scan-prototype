@@ -1,0 +1,4 @@
+# Add rule categories or file paths here to ignore them in the final report
+# Example: PYSEC-2023-192
+# Example: test_cases/fake_API_key.py
+PYSEC-2023-192

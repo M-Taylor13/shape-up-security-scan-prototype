@@ -102,31 +102,72 @@ def process_gitleaks():
     return findings
 
 
+def process_pip_audit():
+    data = load_json("pip-audit.json", {"dependencies": []})
+    findings = []
+
+    for dep in data.get("dependencies", []):
+        vulns = dep.get("vulns", [])
+        for vuln in vulns:
+            # Use 'fix_versions' to construct remediation advice
+            fixes = vuln.get("fix_versions", [])
+            fix_str = f" Fix by upgrading to {', '.join(fixes)}." if fixes else ""
+
+            findings.append({
+                "scanner": "pip-audit",
+                "type": "SCA",
+                "category": vuln.get("id", "Vulnerability"),
+                "severity": "HIGH",  # pip-audit json doesn't always have severity, default to HIGH
+                "status": "FAIL",
+                "file": dep.get("name", "Unknown Package"),
+                "line": dep.get("version", "Unknown Version"),
+                "message": vuln.get("description", "Vulnerable dependency detected.") + fix_str
+            })
+
+    return findings
+
+
+def filter_ignored_findings(findings):
+    ignore_file = ROOT / ".scannerignore"
+    if not ignore_file.exists():
+        return findings
+
+    with open(ignore_file, "r") as f:
+        ignored_patterns = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+
+    filtered = []
+    for finding in findings:
+        drop = False
+        for pattern in ignored_patterns:
+            if pattern in finding.get("category", "") or pattern in finding.get("file", ""):
+                drop = True
+                break
+        
+        if not drop:
+            filtered.append(finding)
+            
+    return filtered
+
+
 def build_report():
+    import datetime
 
     findings = []
 
     findings.extend(process_semgrep())
     findings.extend(process_gitleaks())
+    findings.extend(process_pip_audit())
+    
+    findings = filter_ignored_findings(findings)
 
-    failed = sum(
-        finding["status"] == "FAIL"
-        for finding in findings
-    )
-
-    warnings = sum(
-        finding["status"] == "WARN"
-        for finding in findings
-    )
-
-    passed = sum(
-        finding["status"] == "PASS"
-        for finding in findings
-    )
+    failed = sum(1 for f in findings if f["status"] == "FAIL")
+    warnings = sum(1 for f in findings if f["status"] == "WARN")
+    passed = sum(1 for f in findings if f["status"] == "PASS")
 
     status = "FAIL" if failed > 0 else "PASS"
 
     report = {
+        "timestamp": datetime.datetime.now().isoformat(),
         "status": status,
         "summary": {
             "passed": passed,
@@ -136,16 +177,18 @@ def build_report():
         "findings": findings
     }
 
-    with open(
-        RESULTS / "results.json",
-        "w"
-    ) as file:
-
-        json.dump(
-            report,
-            file,
-            indent=2
-        )
+    with open(RESULTS / "results.json", "w") as file:
+        json.dump(report, file, indent=2)
+        
+    # Save historical trending data
+    history_dir = RESULTS / "history"
+    history_dir.mkdir(exist_ok=True)
+    
+    timestamp_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    history_file = history_dir / f"scan_{timestamp_str}.json"
+    
+    with open(history_file, "w") as file:
+        json.dump(report, file, indent=2)
 
     print(
         f"Security scan: {status} "

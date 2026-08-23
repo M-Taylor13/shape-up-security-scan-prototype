@@ -1,0 +1,171 @@
+{
+  "timestamp": "2026-08-23T16:32:05.054051",
+  "status": "FAIL",
+  "summary": {
+    "passed": 0,
+    "failed": 11,
+    "warnings": 5
+  },
+  "findings": [
+    {
+      "scanner": "Semgrep",
+      "type": "SAST",
+      "category": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag",
+      "severity": "WARNING",
+      "status": "WARN",
+      "file": ".github/workflows/security-scan.yml",
+      "line": 14,
+      "message": "GitHub Actions step uses a mutable tag or branch reference. Tags and branch names can be silently repointed by the action owner, enabling supply-chain attacks \u2014 as seen in the trivy-action and kics-github-action compromises. Pin the reference to a full 40-character commit SHA instead, e.g. `uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608`."
+    },
+    {
+      "scanner": "Semgrep",
+      "type": "SAST",
+      "category": "yaml.github-actions.security.github-actions-mutable-action-tag.github-actions-mutable-action-tag",
+      "severity": "WARNING",
+      "status": "WARN",
+      "file": ".github/workflows/security-scan.yml",
+      "line": 28,
+      "message": "GitHub Actions step uses a mutable tag or branch reference. Tags and branch names can be silently repointed by the action owner, enabling supply-chain attacks \u2014 as seen in the trivy-action and kics-github-action compromises. Pin the reference to a full 40-character commit SHA instead, e.g. `uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608`."
+    },
+    {
+      "scanner": "Semgrep",
+      "type": "SAST",
+      "category": "python.sqlalchemy.security.sqlalchemy-execute-raw-query.sqlalchemy-execute-raw-query",
+      "severity": "ERROR",
+      "status": "FAIL",
+      "file": "test_cases/sql_injectable.py",
+      "line": 10,
+      "message": "Avoiding SQL string concatenation: untrusted input concatenated with raw SQL query can result in SQL Injection. In order to execute raw query safely, prepared statement should be used. SQLAlchemy provides TextualSQL to easily used prepared statement with named parameters. For complex SQL composition, use SQL Expression Language or Schema Definition Language. In most cases, SQLAlchemy ORM will be a better option."
+    },
+    {
+      "scanner": "Semgrep",
+      "type": "SAST",
+      "category": "python.flask.security.xss.audit.explicit-unescape-with-markup.explicit-unescape-with-markup",
+      "severity": "WARNING",
+      "status": "WARN",
+      "file": "test_cases/xss_vulnerable.py",
+      "line": 13,
+      "message": "Detected explicitly unescaped content using 'Markup()'. This permits the unescaped data to include unescaped HTML which could result in cross-site scripting. Ensure this data is not externally controlled, or consider rewriting to not use 'Markup()'."
+    },
+    {
+      "scanner": "Semgrep",
+      "type": "SAST",
+      "category": "python.django.security.injection.raw-html-format.raw-html-format",
+      "severity": "WARNING",
+      "status": "WARN",
+      "file": "test_cases/xss_vulnerable.py",
+      "line": 14,
+      "message": "Detected user input flowing into a manually constructed HTML string. You may be accidentally bypassing secure methods of rendering HTML by manually constructing HTML and this could create a cross-site scripting vulnerability, which could let attackers steal sensitive user data. To be sure this is safe, check that the HTML is rendered safely. Otherwise, use templates (`django.shortcuts.render`) which will safely render HTML instead."
+    },
+    {
+      "scanner": "Semgrep",
+      "type": "SAST",
+      "category": "python.flask.security.injection.raw-html-concat.raw-html-format",
+      "severity": "WARNING",
+      "status": "WARN",
+      "file": "test_cases/xss_vulnerable.py",
+      "line": 14,
+      "message": "Detected user input flowing into a manually constructed HTML string. You may be accidentally bypassing secure methods of rendering HTML by manually constructing HTML and this could create a cross-site scripting vulnerability, which could let attackers steal sensitive user data. To be sure this is safe, check that the HTML is rendered safely. Otherwise, use templates (`flask.render_template`) which will safely render HTML instead."
+    },
+    {
+      "scanner": "pip-audit",
+      "type": "SCA",
+      "category": "PYSEC-2021-108",
+      "severity": "HIGH",
+      "status": "FAIL",
+      "file": "urllib3",
+      "line": "1.26.4",
+      "message": "An issue was discovered in urllib3 before 1.26.5. When provided with a URL containing many @ characters in the authority component, the authority regular expression exhibits catastrophic backtracking, causing a denial of service if a URL were passed as a parameter or redirected to via an HTTP redirect. Fix by upgrading to 1.26.5."
+    },
+    {
+      "scanner": "pip-audit",
+      "type": "SCA",
+      "category": "PYSEC-2021-108",
+      "severity": "HIGH",
+      "status": "FAIL",
+      "file": "urllib3",
+      "line": "1.26.4",
+      "message": "### Impact  When provided with a URL containing many `@` characters in the authority component the authority regular expression exhibits catastrophic backtracking causing a denial of service if a URL were passed as a parameter or redirected to via an HTTP redirect.   ### Patches  The issue has been fixed in urllib3 v1.26.5.  ### References  - [CVE-2021-33503](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-33503) - [JVNVU#92413403 (English)](https://jvn.jp/en/vu/JVNVU92413403/) - [JVNVU#92413403 (Japanese)](https://jvn.jp/vu/JVNVU92413403/) - [urllib3 v1.26.5](https://github.com/urllib3/urllib3/releases/tag/1.26.5)  ### For more information If you have any questions or comments about this advisory: * Ask in our [community Discord](https://discord.gg/urllib3) * Email [sethmichaellarson@gmail.com](mailto:sethmichaellarson@gmail.com) Fix by upgrading to 1.26.5."
+    },
+    {
+      "scanner": "pip-audit",
+      "type": "SCA",
+      "category": "PYSEC-2023-212",
+      "severity": "HIGH",
+      "status": "FAIL",
+      "file": "urllib3",
+      "line": "1.26.4",
+      "message": "urllib3 previously wouldn't remove the HTTP request body when an HTTP redirect response using status 303 \"See Other\" after the request had its method changed from one that could accept a request body (like `POST`) to `GET` as is required by HTTP RFCs. Although the behavior of removing the request body is not specified in the section for redirects, it can be inferred by piecing together information from different sections and we have observed the behavior in other major HTTP client implementations like curl and web browsers.  From [RFC 9110 Section 9.3.1](https://www.rfc-editor.org/rfc/rfc9110.html#name-get):  > A client SHOULD NOT generate content in a GET request unless it is made directly to an origin server that has previously indicated, in or out of band, that such a request has a purpose and will be adequately supported.  ## Affected usages  Because the vulnerability requires a previously trusted service to become compromised in order to have an impact on confidentiality we believe the exploitability of this vulnerability is low. Additionally, many users aren't putting sensitive data in HTTP request bodies, if this is the case then this vulnerability isn't exploitable.  Both of the following conditions must be true to be affected by this vulnerability:  * If you're using urllib3 and submitting sensitive information in the HTTP request body (such as form data or JSON) * The origin service is compromised and starts redirecting using 303 to a malicious peer or the redirected-to service becomes compromised.  ## Remediation  You can remediate this vulnerability with any of the following steps:  * Upgrade to a patched version of urllib3 (v1.26.18 or v2.0.7) * Disable redirects for services that you aren't expecting to respond with redirects with `redirects=False`. * Disable automatic redirects with `redirects=False` and handle 303 redirects manually by stripping the HTTP request body. Fix by upgrading to 1.26.18, 2.0.7."
+    },
+    {
+      "scanner": "pip-audit",
+      "type": "SCA",
+      "category": "PYSEC-2023-212",
+      "severity": "HIGH",
+      "status": "FAIL",
+      "file": "urllib3",
+      "line": "1.26.4",
+      "message": "urllib3 is a user-friendly HTTP client library for Python. urllib3 previously wouldn't remove the HTTP request body when an HTTP redirect response using status 301, 302, or 303 after the request had its method changed from one that could accept a request body (like `POST`) to `GET` as is required by HTTP RFCs. Although this behavior is not specified in the section for redirects, it can be inferred by piecing together information from different sections and we have observed the behavior in other major HTTP client implementations like curl and web browsers. Because the vulnerability requires a previously trusted service to become compromised in order to have an impact on confidentiality we believe the exploitability of this vulnerability is low. Additionally, many users aren't putting sensitive data in HTTP request bodies, if this is the case then this vulnerability isn't exploitable. Both of the following conditions must be true to be affected by this vulnerability: 1. Using urllib3 and submitting sensitive information in the HTTP request body (such as form data or JSON) and 2. The origin service is compromised and starts redirecting using 301, 302, or 303 to a malicious peer or the redirected-to service becomes compromised. This issue has been addressed in versions 1.26.18 and 2.0.7 and users are advised to update to resolve this issue. Users unable to update should disable redirects for services that aren't expecting to respond with redirects with `redirects=False` and disable automatic redirects with `redirects=False` and handle 301, 302, and 303 redirects manually by stripping the HTTP request body.  Fix by upgrading to 1.26.18, 2.0.7."
+    },
+    {
+      "scanner": "pip-audit",
+      "type": "SCA",
+      "category": "PYSEC-2026-141",
+      "severity": "HIGH",
+      "status": "FAIL",
+      "file": "urllib3",
+      "line": "1.26.4",
+      "message": "urllib3 is an HTTP client library for Python. From 1.23 to before 2.7.0, cross-origin redirects followed from the low-level API via ProxyManager.connection_from_url().urlopen(..., assert_same_host=False) still forward these sensitive headers. This vulnerability is fixed in 2.7.0. Fix by upgrading to 2.7.0."
+    },
+    {
+      "scanner": "pip-audit",
+      "type": "SCA",
+      "category": "PYSEC-2026-1999",
+      "severity": "HIGH",
+      "status": "FAIL",
+      "file": "urllib3",
+      "line": "1.26.4",
+      "message": "urllib3 handles redirects and retries using the same mechanism, which is controlled by the `Retry` object. The most common way to disable redirects is at the request level, as follows:  ```python resp = urllib3.request(\"GET\", \"https://httpbin.org/redirect/1\", redirect=False) print(resp.status) # 302 ```  However, it is also possible to disable redirects, for all requests, by instantiating a `PoolManager` and specifying `retries` in a way that disable redirects:  ```python import urllib3  http = urllib3.PoolManager(retries=0)  # should raise MaxRetryError on redirect http = urllib3.PoolManager(retries=urllib3.Retry(redirect=0))  # equivalent to the above http = urllib3.PoolManager(retries=False)  # should return the first response  resp = http.request(\"GET\", \"https://httpbin.org/redirect/1\") ```  However, the `retries` parameter is currently ignored, which means all the above examples don't disable redirects.  ## Affected usages  Passing `retries` on `PoolManager` instantiation to disable redirects or restrict their number.  By default, requests and botocore users are not affected.  ## Impact  Redirects are often used to exploit SSRF vulnerabilities. An application attempting to mitigate SSRF or open redirect vulnerabilities by disabling redirects at the PoolManager level will remain vulnerable.  ## Remediation  You can remediate this vulnerability with the following steps:   * Upgrade to a patched version of urllib3. If your organization would benefit from the continued support of urllib3 1.x, please contact [sethmichaellarson@gmail.com](mailto:sethmichaellarson@gmail.com) to discuss sponsorship or contribution opportunities.  * Disable redirects at the `request()` level instead of the `PoolManager()` level. Fix by upgrading to 2.5.0."
+    },
+    {
+      "scanner": "pip-audit",
+      "type": "SCA",
+      "category": "PYSEC-2026-1998",
+      "severity": "HIGH",
+      "status": "FAIL",
+      "file": "urllib3",
+      "line": "1.26.4",
+      "message": "## Impact  urllib3 supports chained HTTP encoding algorithms for response content according to RFC 9110 (e.g., `Content-Encoding: gzip, zstd`).  However, the number of links in the decompression chain was unbounded allowing a malicious server to insert a virtually unlimited number of compression steps leading to high CPU usage and massive memory allocation for the decompressed data.   ## Affected usages  Applications and libraries using urllib3 version 2.5.0 and earlier for HTTP requests to untrusted sources unless they disable content decoding explicitly.   ## Remediation  Upgrade to at least urllib3 v2.6.0 in which the library limits the number of links to 5.  If upgrading is not immediately possible, use [`preload_content=False`](https://urllib3.readthedocs.io/en/2.5.0/advanced-usage.html#streaming-and-i-o) and ensure that `resp.headers[\"content-encoding\"]` contains a safe number of encodings before reading the response content. Fix by upgrading to 2.6.0."
+    },
+    {
+      "scanner": "pip-audit",
+      "type": "SCA",
+      "category": "PYSEC-2026-1995",
+      "severity": "HIGH",
+      "status": "FAIL",
+      "file": "urllib3",
+      "line": "1.26.4",
+      "message": "When using urllib3's proxy support with `ProxyManager`, the `Proxy-Authorization` header is only sent to the configured proxy, as expected.  However, when sending HTTP requests *without* using urllib3's proxy support, it's possible to accidentally configure the `Proxy-Authorization` header even though it won't have any effect as the request is not using a forwarding proxy or a tunneling proxy. In those cases, urllib3 doesn't treat the `Proxy-Authorization` HTTP header as one carrying authentication material and thus doesn't strip the header on cross-origin redirects.  Because this is a highly unlikely scenario, we believe the severity of this vulnerability is low for almost all users. Out of an abundance of caution urllib3 will automatically strip the `Proxy-Authorization` header during cross-origin redirects to avoid the small chance that users are doing this on accident.  Users should use urllib3's proxy support or disable automatic redirects to achieve safe processing of the `Proxy-Authorization` header, but we still decided to strip the header by default in order to further protect users who aren't using the correct approach.  ## Affected usages  We believe the number of usages affected by this advisory is low. It requires all of the following to be true to be exploited:  * Setting the `Proxy-Authorization` header without using urllib3's built-in proxy support. * Not disabling HTTP redirects. * Either not using an HTTPS origin server or for the proxy or target origin to redirect to a malicious origin.  ## Remediation  * Using the `Proxy-Authorization` header with urllib3's `ProxyManager`. * Disabling HTTP redirects using `redirects=False` when sending requests. * Not using the `Proxy-Authorization` header. Fix by upgrading to 1.26.19, 2.2.2."
+    },
+    {
+      "scanner": "pip-audit",
+      "type": "SCA",
+      "category": "PYSEC-2026-1994",
+      "severity": "HIGH",
+      "status": "FAIL",
+      "file": "urllib3",
+      "line": "1.26.4",
+      "message": "### Impact  urllib3's [streaming API](https://urllib3.readthedocs.io/en/2.5.0/advanced-usage.html#streaming-and-i-o) is designed for the efficient handling of large HTTP responses by reading the content in chunks, rather than loading the entire response body into memory at once.  When streaming a compressed response, urllib3 can perform decoding or decompression based on the HTTP `Content-Encoding` header (e.g., `gzip`, `deflate`, `br`, or `zstd`). The library must read compressed data from the network and decompress it until the requested chunk size is met. Any resulting decompressed data that exceeds the requested amount is held in an internal buffer for the next read operation.  The decompression logic could cause urllib3 to fully decode a small amount of highly compressed data in a single operation. This can result in excessive resource consumption (high CPU usage and massive memory allocation for the decompressed data; CWE-409) on the client side, even if the application only requested a small chunk of data.   ### Affected usages  Applications and libraries using urllib3 version 2.5.0 and earlier to stream large compressed responses or content from untrusted sources.  `stream()`, `read(amt=256)`, `read1(amt=256)`, `read_chunked(amt=256)`, `readinto(b)` are examples of `urllib3.HTTPResponse` method calls using the affected logic unless decoding is disabled explicitly.   ### Remediation  Upgrade to at least urllib3 v2.6.0 in which the library avoids decompressing data that exceeds the requested amount.  If your environment contains a package facilitating the Brotli encoding, upgrade to at least Brotli 1.2.0 or brotlicffi 1.2.0.0 too. These versions are enforced by the `urllib3[brotli]` extra in the patched versions of urllib3.   ### Credits  The issue was reported by @Cycloctane. Supplemental information was provided by @stamparm during a security audit performed by [7ASecurity](https://7asecurity.com/) and facilitated by [OSTIF](https://ostif.org/). Fix by upgrading to 2.6.0."
+    },
+    {
+      "scanner": "pip-audit",
+      "type": "SCA",
+      "category": "PYSEC-2026-1996",
+      "severity": "HIGH",
+      "status": "FAIL",
+      "file": "urllib3",
+      "line": "1.26.4",
+      "message": "### Impact  urllib3's [streaming API](https://urllib3.readthedocs.io/en/2.6.2/advanced-usage.html#streaming-and-i-o) is designed for the efficient handling of large HTTP responses by reading the content in chunks, rather than loading the entire response body into memory at once.  urllib3 can perform decoding or decompression based on the HTTP `Content-Encoding` header (e.g., `gzip`, `deflate`, `br`, or `zstd`). When using the streaming API, the library decompresses only the necessary bytes, enabling partial content consumption.  However, for HTTP redirect responses, the library would read the entire response body to drain the connection and decompress the content unnecessarily. This decompression occurred even before any read methods were called, and configured read limits did not restrict the amount of decompressed data. As a result, there was no safeguard against decompression bombs. A malicious server could exploit this to trigger excessive resource consumption on the client (high CPU usage and large memory allocations for decompressed data; CWE-409).  ### Affected usages  Applications and libraries using urllib3 version 2.6.2 and earlier to stream content from untrusted sources by setting `preload_content=False` when they do not disable redirects.   ### Remediation  Upgrade to at least urllib3 v2.6.3 in which the library does not decode content of redirect responses when `preload_content=False`.  If upgrading is not immediately possible, disable [redirects](https://urllib3.readthedocs.io/en/2.6.2/user-guide.html#retrying-requests) by setting `redirect=False` for requests to untrusted source. Fix by upgrading to 2.6.3."
+    }
+  ]
+}
