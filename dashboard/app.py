@@ -175,5 +175,28 @@ for finding in filtered_findings:
         if finding.get("line"):
             st.write(f"**Line/Version:** {finding['line']}")
 
-        st.write(f"**Description:** {finding['message']}")
-        st.write(f"**Status:** {finding['status']}")
+        st.write(
+            f"**File:** "
+            f"`{finding['file']}`"
+        )
+
+        st.write(
+            f"**Problem:** "
+            f"{finding.get('description', finding.get('message', 'No problem description available.'))}"
+        )
+
+        if finding["line"]:
+            st.write(
+                f"**Line:** "
+                f"{finding['line']}"
+            )
+
+        st.write(
+            f"**Description:** "
+            f"{finding.get('technical_message', finding.get('message', 'No technical description available.'))}"
+        )
+
+        st.write(
+            f"**Status:** "
+            f"{finding['status']}"
+        )

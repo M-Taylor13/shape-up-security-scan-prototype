@@ -3,6 +3,8 @@ import json
 from pathlib import Path
 
 from criteria import get_action
+from classifier import classify_rule
+from explanations import get_friendly_info
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -33,22 +35,70 @@ def process_semgrep():
 
     for result in data.get("results", []):
 
+        # Get Semgrep's extra information
         extra = result.get("extra", {})
 
+        # Original Semgrep severity
         severity = extra.get(
             "severity",
             "INFO"
         ).upper()
 
+        # Original Semgrep rule ID
+        rule_id = result.get(
+            "check_id",
+            "Unknown"
+        )
+
+        # Original technical description
+        technical_message = extra.get(
+            "message",
+            "No technical description available."
+        )
+
+        # Metadata contains things such as CWE
+        metadata = extra.get(
+            "metadata",
+            {}
+        )
+
+        # ----------------------------------------
+        # CLASSIFY THE SEMGREP FINDING
+        # ----------------------------------------
+
+        category = classify_rule(
+            rule_id,
+            technical_message,
+            metadata
+        )
+
+        # ----------------------------------------
+        # GET USER-FRIENDLY INFORMATION
+        # ----------------------------------------
+
+        friendly = get_friendly_info(category)
+
+        # ----------------------------------------
+        # BUILD OUR NORMALISED FINDING
+        # ----------------------------------------
+
         findings.append({
-            "scanner": "Semgrep",
-            "type": "SAST",
-            "category": result.get(
-                "check_id",
-                "Unknown"
-            ),
+
+            # Friendly information
+            "category": category,
+            "title": friendly["title"],
+            "description": friendly["description"],
+            "impact": friendly["impact"],
+            "remediation": friendly["remediation"],
+
+            # Severity / pipeline decision
             "severity": severity,
             "status": get_action(severity),
+
+            # Technical information
+            "scanner": "Semgrep",
+            "type": "SAST",
+            "rule_id": rule_id,
             "file": result.get(
                 "path",
                 "Unknown"
@@ -57,10 +107,7 @@ def process_semgrep():
                 "start",
                 {}
             ).get("line"),
-            "message": extra.get(
-                "message",
-                "No description available."
-            )
+            "technical_message": technical_message
         })
 
     return findings

@@ -51,7 +51,7 @@ def run_gitleaks():
 
     result = run_command([
         "gitleaks",
-        "dir",
+        "detect",
         ".",
         "--report-format", "json",
         "--report-path", "results/gitleaks.json",
