@@ -172,14 +172,6 @@ for finding in filtered_findings:
         st.write(f"**Type:** {finding['type']}")
         st.write(f"**File:** `{finding['file']}`")
 
-        if finding.get("line"):
-            st.write(f"**Line/Version:** {finding['line']}")
-
-        st.write(
-            f"**File:** "
-            f"`{finding['file']}`"
-        )
-
         st.write(
             f"**Problem:** "
             f"{finding.get('description', finding.get('message', 'No problem description available.'))}"
