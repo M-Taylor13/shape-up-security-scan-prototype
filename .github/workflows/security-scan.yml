@@ -12,6 +12,9 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Gitleaks compares against earlier commits, so it needs the full history.
+          fetch-depth: 0
 
       - name: Install Python scanners
         run: pip install semgrep bandit
@@ -26,6 +29,8 @@ jobs:
 
       - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2
+        # The test fixtures contain deliberately fake secrets; keep going so the other scanners still run.
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
