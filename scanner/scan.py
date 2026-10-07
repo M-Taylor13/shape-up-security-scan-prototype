@@ -1,4 +1,4 @@
-# Runs the SAST and secret scan
+# Runs the SAST, secret, SCA, and Python-specific SAST scans
 import subprocess
 from pathlib import Path
 
@@ -66,17 +66,59 @@ def run_gitleaks():
     return result.returncode
 
 
-def run_pip_audit():
-    print("Running pip-audit...")
+# Extra dependency files whose names OSV-Scanner would not recognise on its own.
+# Format: "<parser>:<path>", see the OSV-Scanner --lockfile option.
+EXTRA_LOCKFILES = [
+    "requirements.txt:test_cases/vulnerable_requirements.txt",
+]
+
+
+def run_osv_scanner():
+    """Software composition analysis for every supported ecosystem in the repository.
+
+    OSV-Scanner finds lockfiles and manifests recursively (npm, PyPI, Go, Maven,
+    Cargo, NuGet and more) and checks each dependency against the OSV database.
+    """
+    print("Running OSV-Scanner...")
+
+    command = [
+        "osv-scanner",
+        "scan", "source",
+        "--recursive",
+        "--format", "json",
+        "--output-file", "results/osv-scanner.json",
+    ]
+    for lockfile in EXTRA_LOCKFILES:
+        command += ["--lockfile", lockfile]
+    command.append(".")
+
+    result = run_command(command)
+
+    # Exit code 1 means vulnerabilities were found, 128 means no dependency files were found.
+    print(f"OSV-Scanner finished with exit code {result.returncode}")
+
+    if result.returncode not in (0, 1) and result.stderr:
+        print(result.stderr)
+
+    return result.returncode
+
+
+def run_bandit():
+    print("Running Bandit...")
 
     result = run_command([
-        "pip-audit",
-        "-r", "test_cases/vulnerable_requirements.txt",
+        "bandit",
+        "-r", ".",
         "-f", "json",
-        "-o", "results/pip-audit.json"
+        "-o", "results/bandit.json",
+        "--exclude", ".git,results,.venv,venv,node_modules"
     ])
 
-    print(f"pip-audit finished with exit code {result.returncode}")
+    # Bandit exits with code 1 when it finds issues (not a true error)
+    if result.returncode not in (0, 1):
+        print(f"Bandit finished with exit code {result.returncode}")
+    else:
+        print(f"Bandit finished with exit code {result.returncode}")
 
     if result.stderr:
         print(result.stderr)
@@ -92,6 +134,7 @@ if __name__ == "__main__":
 
     run_semgrep()
     run_gitleaks()
-    run_pip_audit()
+    run_osv_scanner()
+    run_bandit()
 
     print("\nRaw scan results saved to results/")

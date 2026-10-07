@@ -4,8 +4,9 @@ Prototype for automated security analysis of application repositories as part of
 
 The prototype currently investigates:
 
-* **SAST** using Semgrep
+* **SAST** using Semgrep, plus Bandit for Python-specific checks
 * **Secret detection** using Gitleaks
+* **SCA** (dependency vulnerabilities) for multiple languages using OSV-Scanner
 * Automated security scanning through **GitHub Actions**
 * Processing scanner results into a common format
 * A basic dashboard for displaying security findings
@@ -31,7 +32,12 @@ security-scanner-prototype/
 │   ├── secure_code.py        # Expected to pass
 │   ├── sql_injectable.py     # Deliberately vulnerable test
 │   ├── xss_vulnerable.py     # Deliberately vulnerable test
-│   └── fake_API_key.py       # Fake credential for secret scanning
+│   ├── fake_API_key.py       # Fake credential for secret scanning
+│   ├── vulnerable_requirements.txt   # Python dependencies with known vulnerabilities
+│   └── sca_fixtures/         # npm and Go dependencies with known vulnerabilities
+│
+├── tests/
+│   └── test_osv_processing.py    # Unit tests for OSV-Scanner result processing
 │
 ├── results/                  # Local scanner output
 ├── requirements.txt
@@ -57,6 +63,31 @@ Gitleaks is used to identify potential secrets and credentials exposed within th
 
 Test credentials must always be fake/non-functional.
 
+### Bandit
+
+Bandit is used for Python-specific SAST. It complements Semgrep by checking Python files for common security mistakes such as:
+
+* Weak hashing algorithms (MD5, SHA1)
+* Unsafe deserialisation with `pickle`
+* Shell commands built from input
+* Hardcoded passwords
+
+### OSV-Scanner
+
+OSV-Scanner is used for Software Composition Analysis (SCA): it checks third-party dependencies against the OSV vulnerability database.
+
+It finds dependency files recursively and supports many ecosystems from one tool, including npm (`package-lock.json`), Python (`requirements.txt`, `poetry.lock`), Go (`go.mod`), Java (`pom.xml`), Rust (`Cargo.lock`) and .NET (`packages.lock.json`). It replaces `pip-audit`, which only covered Python.
+
+Each vulnerability is reported once per package even when it is known under several IDs (CVE, GHSA, PYSEC). Severity comes from the CVSS score (9.0+ critical, 7.0+ high, 4.0+ medium, otherwise low), and the finding says which version to upgrade to. A vulnerability with no rating is treated as high.
+
+OSV-Scanner is a standalone binary and is not installed by `pip`. Install it separately, for example:
+
+```bash
+brew install osv-scanner
+```
+
+Dependency files with non-standard names are listed in `EXTRA_LOCKFILES` in `scanner/scan.py`.
+
 ## Running Locally
 
 Install the Python dependencies:
@@ -75,6 +106,12 @@ Process the results:
 
 ```bash
 python scanner/process_results.py
+```
+
+Run the unit tests:
+
+```bash
+python -m unittest discover tests
 ```
 
 Run the dashboard:
@@ -97,6 +134,8 @@ The workflow currently runs:
 
 1. Semgrep
 2. Gitleaks
+3. Bandit
+4. OSV-Scanner
 
 The purpose of the workflow is to demonstrate automated security analysis as part of a CI/CD pipeline.
 
@@ -114,6 +153,9 @@ Expected behaviour:
 | `sql_injectable.py` | Security finding |
 | `xss_vulnerable.py` | Security finding |
 | `fake_API_key.py`   | Secret finding   |
+| `vulnerable_requirements.txt` | Dependency findings (Python) |
+| `sca_fixtures/npm/package-lock.json` | Dependency findings (npm) |
+| `sca_fixtures/go/go.mod` | Dependency findings (Go) |
 
 ## Current Limitations
 
