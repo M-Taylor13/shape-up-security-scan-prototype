@@ -1,4 +1,5 @@
 streamlit
 semgrep
-pip-audit
 plotly
+pandas
+bandit
